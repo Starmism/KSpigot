@@ -19,8 +19,13 @@ object GUIHolder : AutoCloseable {
 
     init {
         listen<InventoryClickEvent> {
-            val clickedInv = it.inventory
-            val gui = registered[clickedInv] ?: return@listen
+            val clickedInv = it.clickedInventory ?: return@listen
+            val gui = registered[clickedInv] ?: run {
+                if (registered[it.inventory] != null) {
+                    it.isCancelled = true
+                }
+                return@listen
+            }
             val player = it.playerOrCancel ?: return@listen
 
             if (gui.isInMove) {
